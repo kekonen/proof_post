@@ -1,6 +1,5 @@
 import { ethers } from 'ethers';
 import { MerkleTree } from 'merkletreejs';
-import { poseidon } from 'circomlib';
 import { Marriage, MarriageProposal, MarriageCertificate, NoMarriageProof, ZKPassportProof } from '../types/marriage';
 
 export class MarriageService {
@@ -77,7 +76,7 @@ export class MarriageService {
         const marriageLeaves = [marriage.spouse1Hash, marriage.spouse2Hash];
         const marriageTree = new MerkleTree(
             marriageLeaves.map(leaf => Buffer.from(leaf.slice(2), 'hex')),
-            (data) => Buffer.from(poseidon([...data]).toString(16), 'hex')
+            (data: any) => Buffer.from(ethers.keccak256(data).slice(2), 'hex')
         );
 
         const userPassportHash = zkPassportProof.passportHash;

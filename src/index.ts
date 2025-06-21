@@ -12,7 +12,7 @@ async function main() {
     
     // This would be replaced with actual provider and contract details
     const provider = new ethers.JsonRpcProvider('http://localhost:8545');
-    const signer = new ethers.Wallet('0x' + '0'.repeat(64), provider); // placeholder
+    const signer = new ethers.Wallet('0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80', provider); // test private key
     
     const marriageService = new MarriageService(
         provider,
