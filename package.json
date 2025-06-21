@@ -7,6 +7,8 @@
     "build": "tsc",
     "build:contracts": "forge build",
     "test": "jest",
+    "test:zkpassport": "jest --testPathPattern=ZKPassport",
+    "test:integration": "jest --testPathPattern=Integration",
     "test:contracts": "forge test",
     "test:contracts:verbose": "forge test -vvv",
     "test:contracts:gas": "forge test --gas-report",
