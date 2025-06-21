@@ -74,11 +74,7 @@ export class RealZKPassportService {
             builder = builder.disclose('document_type');
             builder = builder.eq('document_type', 'passport');
 
-            // Additional attributes for marriage verification
-            builder = builder
-                .disclose('firstname')  // For marriage certificate
-                .disclose('lastname')   // For marriage certificate
-                .disclose('birthdate'); // For age verification backup
+            // Zero-knowledge verification - no personal data disclosed
 
             const { url } = builder.done();
 
@@ -91,10 +87,8 @@ export class RealZKPassportService {
                 verificationUrl: url,
                 expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
                 requiredAttributes: [
-                    'firstname',
-                    'lastname',
-                    'birthdate',
                     'document_type'
+                    // Zero-knowledge: no personal data required
                 ]
             };
         } catch (error) {
@@ -211,26 +205,24 @@ export class RealZKPassportService {
             throw new Error('Both zkPassport proofs must be valid');
         }
 
-        // Generate privacy-preserving marriage certificate
+        // Generate zero-knowledge marriage certificate (no personal data disclosed)
         const certificate = {
             marriageId,
             timestamp: new Date().toISOString(),
             jurisdiction: 'zkPassport-verified',
-            // Personal details are only included if disclosed in zkPassport proof
+            // Zero-knowledge: only verification status, no personal details
             spouse1: {
-                firstname: proof1.proofData?.queryResult?.firstname?.disclose?.result,
-                lastname: proof1.proofData?.queryResult?.lastname?.disclose?.result,
-                nationality: proof1.nationality,
                 ageVerified: proof1.ageOver18 || proof1.ageOver21,
-                documentValid: proof1.documentValid
+                documentValid: proof1.documentValid,
+                zkPassportVerified: true
             },
             spouse2: {
-                firstname: proof2.proofData?.queryResult?.firstname?.disclose?.result,
-                lastname: proof2.proofData?.queryResult?.lastname?.disclose?.result,
-                nationality: proof2.nationality,
                 ageVerified: proof2.ageOver18 || proof2.ageOver21,
-                documentValid: proof2.documentValid
-            }
+                documentValid: proof2.documentValid,
+                zkPassportVerified: true
+            },
+            // Privacy: only cryptographic proofs, no identifiable information
+            verificationLevel: 'zero-knowledge'
         };
 
         // Privacy layer - nullifiers for blockchain verification

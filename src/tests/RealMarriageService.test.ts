@@ -325,6 +325,8 @@ describe('RealMarriageService', () => {
             expect(result.isValid).toBe(true);
             expect(result.certificate).toBeDefined();
             expect(result.certificate.zkPassportVerified).toBe(true);
+            expect(result.certificate.verificationLevel).toBe('zero-knowledge');
+            expect(result.certificate.privacyPreserving).toBe(true);
         });
 
         it('should reject certificate for non-spouse', async () => {

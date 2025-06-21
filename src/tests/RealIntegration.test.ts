@@ -95,13 +95,10 @@ describe('Real zkPassport + Marriage Integration', () => {
                     documentValid: true,
                     nullifier: '0x' + '1'.repeat(64),
                     proofData: {
-                        disclosed: {
-                            firstname: 'Alice',
-                            lastname: 'Johnson',
-                            nationality: 'USA',
-                            age_over_18: true,
-                            document_validity: true
-                        }
+                        // Zero-knowledge: no personal data disclosed
+                        zkPassportVerified: true,
+                        ageVerified: true,
+                        documentVerified: true
                     }
                 })
                 .mockResolvedValueOnce({
@@ -111,13 +108,10 @@ describe('Real zkPassport + Marriage Integration', () => {
                     documentValid: true,
                     nullifier: '0x' + '2'.repeat(64),
                     proofData: {
-                        disclosed: {
-                            firstname: 'Bob',
-                            lastname: 'Smith',
-                            nationality: 'CAN',
-                            age_over_18: true,
-                            document_validity: true
-                        }
+                        // Zero-knowledge: no personal data disclosed
+                        zkPassportVerified: true,
+                        ageVerified: true,
+                        documentVerified: true
                     }
                 });
 
@@ -126,17 +120,14 @@ describe('Real zkPassport + Marriage Integration', () => {
                 reasons: []
             });
 
-            // Submit proposer proof
+            // Submit proposer proof (zero-knowledge)
             const proposerProofData = {
                 proof: 'alice-zkpassport-proof',
                 publicSignals: ['signal1', 'signal2'],
-                disclosed: {
-                    firstname: 'Alice',
-                    lastname: 'Johnson',
-                    nationality: 'USA',
-                    age_over_18: true,
-                    document_validity: true
-                }
+                // Zero-knowledge: no personal data disclosed
+                zkPassportVerified: true,
+                ageVerified: true,
+                documentVerified: true
             };
 
             const proposerResult = await marriageService.submitZKPassportProof(
@@ -148,17 +139,14 @@ describe('Real zkPassport + Marriage Integration', () => {
             expect(proposerResult.isValid).toBe(true);
             expect(proposerResult.userId).toBe('proposer');
 
-            // Submit proposee proof
+            // Submit proposee proof (zero-knowledge)
             const proposeeProofData = {
                 proof: 'bob-zkpassport-proof',
                 publicSignals: ['signal3', 'signal4'],
-                disclosed: {
-                    firstname: 'Bob',
-                    lastname: 'Smith',
-                    nationality: 'CAN',
-                    age_over_18: true,
-                    document_validity: true
-                }
+                // Zero-knowledge: no personal data disclosed
+                zkPassportVerified: true,
+                ageVerified: true,
+                documentVerified: true
             };
 
             const proposeeResult = await marriageService.submitZKPassportProof(
@@ -174,8 +162,18 @@ describe('Real zkPassport + Marriage Integration', () => {
             mockZkPassport.generateMarriageCertificateData = jest.fn().mockResolvedValue({
                 certificate: {
                     marriageId: '0x' + 'marriage'.repeat(8),
-                    spouse1: { firstname: 'Alice', lastname: 'Johnson', nationality: 'USA' },
-                    spouse2: { firstname: 'Bob', lastname: 'Smith', nationality: 'CAN' }
+                    verificationLevel: 'zero-knowledge',
+                    // Zero-knowledge: no personal data in certificate
+                    spouse1: { 
+                        ageVerified: true, 
+                        documentValid: true, 
+                        zkPassportVerified: true 
+                    },
+                    spouse2: { 
+                        ageVerified: true, 
+                        documentValid: true, 
+                        zkPassportVerified: true 
+                    }
                 },
                 privacy: {
                     spouse1Nullifier: '0x' + '1'.repeat(64),

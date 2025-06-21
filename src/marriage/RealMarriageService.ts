@@ -68,7 +68,7 @@ export class RealMarriageService {
         };
 
         try {
-            // Create verification requests for both parties
+            // Create zero-knowledge verification requests for both parties
             const proposerVerification = await this.zkPassport.createMarriageVerificationRequest(
                 proposerId,
                 requirements
@@ -322,14 +322,17 @@ export class RealMarriageService {
                 };
             }
 
-            // Generate certificate
+            // Generate zero-knowledge certificate (no personal data)
             const certificate = {
                 marriageId,
                 isValid: marriage.isActive,
                 marriageDate: new Date(Number(marriage.marriageDate) * 1000),
                 verifiedBy: 'zkPassport',
                 requesterNullifier,
-                zkPassportVerified: true
+                zkPassportVerified: true,
+                verificationLevel: 'zero-knowledge',
+                // No personal information disclosed
+                privacyPreserving: true
             };
 
             return {

@@ -34,10 +34,11 @@ describe('RealZKPassportService', () => {
             expect(request.requestId).toBeDefined();
             expect(request.verificationUrl).toBeDefined();
             expect(request.expiresAt).toBeInstanceOf(Date);
-            expect(request.requiredAttributes).toContain('firstname');
-            expect(request.requiredAttributes).toContain('lastname');
-            expect(request.requiredAttributes).toContain('birthdate');
             expect(request.requiredAttributes).toContain('document_type');
+            // Zero-knowledge: no personal data required
+            expect(request.requiredAttributes).not.toContain('firstname');
+            expect(request.requiredAttributes).not.toContain('lastname');
+            expect(request.requiredAttributes).not.toContain('birthdate');
         });
 
         it('should create verification request with custom requirements', async () => {
@@ -48,10 +49,11 @@ describe('RealZKPassportService', () => {
             
             const request = await zkPassportService.createMarriageVerificationRequest('user123', requirements);
             
-            expect(request.requiredAttributes).toContain('firstname');
-            expect(request.requiredAttributes).toContain('lastname');
-            expect(request.requiredAttributes).toContain('birthdate');
             expect(request.requiredAttributes).toContain('document_type');
+            // Zero-knowledge: no personal data disclosed even with custom requirements
+            expect(request.requiredAttributes).not.toContain('firstname');
+            expect(request.requiredAttributes).not.toContain('lastname');
+            expect(request.requiredAttributes).not.toContain('birthdate');
         });
 
         it('should generate unique request IDs', async () => {
@@ -231,18 +233,8 @@ describe('RealZKPassportService', () => {
             documentValid: true,
             nullifier: '0x' + '1'.repeat(64),
             proofData: {
-                queryResult: {
-                    firstname: {
-                        disclose: {
-                            result: 'John'
-                        }
-                    },
-                    lastname: {
-                        disclose: {
-                            result: 'Doe'
-                        }
-                    }
-                }
+                // Zero-knowledge: no personal data in proof
+                zkPassportVerified: true
             }
         };
 
@@ -253,22 +245,12 @@ describe('RealZKPassportService', () => {
             documentValid: true,
             nullifier: '0x' + '2'.repeat(64),
             proofData: {
-                queryResult: {
-                    firstname: {
-                        disclose: {
-                            result: 'Jane'
-                        }
-                    },
-                    lastname: {
-                        disclose: {
-                            result: 'Smith'
-                        }
-                    }
-                }
+                // Zero-knowledge: no personal data in proof
+                zkPassportVerified: true
             }
         };
 
-        it('should generate marriage certificate data', async () => {
+        it('should generate zero-knowledge marriage certificate data', async () => {
             const marriageId = '0x' + '3'.repeat(64);
             
             const result = await zkPassportService.generateMarriageCertificateData(
@@ -279,8 +261,19 @@ describe('RealZKPassportService', () => {
             
             expect(result.certificate).toBeDefined();
             expect(result.certificate.marriageId).toBe(marriageId);
-            expect(result.certificate.spouse1.firstname).toBe('John');
-            expect(result.certificate.spouse2.firstname).toBe('Jane');
+            expect(result.certificate.verificationLevel).toBe('zero-knowledge');
+            
+            // Zero-knowledge: no personal data in certificate
+            expect(result.certificate.spouse1.zkPassportVerified).toBe(true);
+            expect(result.certificate.spouse2.zkPassportVerified).toBe(true);
+            expect(result.certificate.spouse1.ageVerified).toBe(true);
+            expect(result.certificate.spouse2.ageVerified).toBe(true);
+            
+            // Ensure no personal data is disclosed
+            expect(result.certificate.spouse1.firstname).toBeUndefined();
+            expect(result.certificate.spouse1.lastname).toBeUndefined();
+            expect(result.certificate.spouse2.firstname).toBeUndefined();
+            expect(result.certificate.spouse2.lastname).toBeUndefined();
             
             expect(result.privacy).toBeDefined();
             expect(result.privacy.spouse1Nullifier).toBe(validProof1.nullifier);
