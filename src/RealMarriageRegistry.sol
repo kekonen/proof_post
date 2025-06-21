@@ -40,8 +40,7 @@ contract RealMarriageRegistry is ReentrancyGuard, Ownable {
     
     // zkPassport integration
     address public zkPassportVerifier;                      // zkPassport verifier contract
-    mapping(string => bool) public supportedJurisdictions;  // Supported marriage jurisdictions
-    mapping(string => uint256) public minimumAge;           // Minimum age by jurisdiction
+    uint256 public constant MINIMUM_AGE = 18;               // Minimum age for marriage (18 years)
     
     // Events
     event MarriageProposed(
@@ -60,7 +59,6 @@ contract RealMarriageRegistry is ReentrancyGuard, Ownable {
     
     event DivorceRequested(bytes32 indexed marriageId, bytes32 requesterNullifier);
     event MarriageDissolved(bytes32 indexed marriageId);
-    event JurisdictionAdded(string jurisdiction, uint256 minimumAge);
     event ZKPassportVerifierUpdated(address newVerifier);
 
     // Errors
@@ -70,23 +68,12 @@ contract RealMarriageRegistry is ReentrancyGuard, Ownable {
     error ProposalExpired();
     error NotAuthorized();
     error MarriageNotActive();
-    error UnsupportedJurisdiction();
     error NullifierAlreadyUsed();
 
     constructor(
-        address _zkPassportVerifier,
-        string[] memory _jurisdictions,
-        uint256[] memory _minimumAges
+        address _zkPassportVerifier
     ) Ownable(msg.sender) {
         zkPassportVerifier = _zkPassportVerifier;
-        
-        // Setup supported jurisdictions
-        require(_jurisdictions.length == _minimumAges.length, "Mismatched arrays");
-        for (uint i = 0; i < _jurisdictions.length; i++) {
-            supportedJurisdictions[_jurisdictions[i]] = true;
-            minimumAge[_jurisdictions[i]] = _minimumAges[i];
-            emit JurisdictionAdded(_jurisdictions[i], _minimumAges[i]);
-        }
     }
 
     /**
@@ -103,7 +90,6 @@ contract RealMarriageRegistry is ReentrancyGuard, Ownable {
         bytes calldata zkPassportProof1,
         bytes calldata zkPassportProof2
     ) external nonReentrant {
-        if (!supportedJurisdictions[jurisdiction]) revert UnsupportedJurisdiction();
         if (usedNullifiers[proposerNullifier]) revert NullifierAlreadyUsed();
         if (usedNullifiers[proposeeNullifier]) revert NullifierAlreadyUsed();
         if (nullifierToMarriage[proposerNullifier] != bytes32(0)) revert AlreadyMarried();
@@ -316,29 +302,14 @@ contract RealMarriageRegistry is ReentrancyGuard, Ownable {
     }
 
     // Admin functions
-    function addJurisdiction(string calldata jurisdiction, uint256 _minimumAge) external onlyOwner {
-        supportedJurisdictions[jurisdiction] = true;
-        minimumAge[jurisdiction] = _minimumAge;
-        emit JurisdictionAdded(jurisdiction, _minimumAge);
-    }
-
     function updateZKPassportVerifier(address newVerifier) external onlyOwner {
         zkPassportVerifier = newVerifier;
         emit ZKPassportVerifierUpdated(newVerifier);
     }
 
-    function removeJurisdiction(string calldata jurisdiction) external onlyOwner {
-        supportedJurisdictions[jurisdiction] = false;
-        minimumAge[jurisdiction] = 0;
-    }
-
     // View functions
-    function isJurisdictionSupported(string calldata jurisdiction) external view returns (bool) {
-        return supportedJurisdictions[jurisdiction];
-    }
-
-    function getMinimumAge(string calldata jurisdiction) external view returns (uint256) {
-        return minimumAge[jurisdiction];
+    function getMinimumAge() external pure returns (uint256) {
+        return MINIMUM_AGE;
     }
 
     function isNullifierUsed(bytes32 nullifier) external view returns (bool) {

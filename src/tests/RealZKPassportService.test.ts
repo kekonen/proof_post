@@ -43,7 +43,6 @@ describe('RealZKPassportService', () => {
         it('should create verification request with custom requirements', async () => {
             const requirements = {
                 minAge: 21,
-                allowedCountries: ['USA', 'CAN'],
                 requireDocumentValidity: true
             };
             
@@ -53,7 +52,6 @@ describe('RealZKPassportService', () => {
             expect(request.requiredAttributes).toContain('lastname');
             expect(request.requiredAttributes).toContain('birthdate');
             expect(request.requiredAttributes).toContain('document_type');
-            expect(request.requiredAttributes).toContain('nationality');
         });
 
         it('should generate unique request IDs', async () => {
@@ -198,13 +196,12 @@ describe('RealZKPassportService', () => {
             expect(result.reasons).toContain('Both parties must be over 18 years old');
         });
 
-        it('should reject marriage with nationality restrictions', async () => {
-            const jurisdiction = { allowedCountries: ['GBR', 'DEU'] };
+        it('should allow marriage regardless of nationality', async () => {
+            // Test with any nationality - should be allowed since we removed restrictions
+            const result = await zkPassportService.canMarry(validProof1, validProof2);
             
-            const result = await zkPassportService.canMarry(validProof1, validProof2, jurisdiction);
-            
-            expect(result.canMarry).toBe(false);
-            expect(result.reasons.length).toBeGreaterThan(0);
+            expect(result.canMarry).toBe(true);
+            expect(result.reasons).toHaveLength(0);
         });
 
         it('should reject marriage with same nullifier', async () => {

@@ -19,43 +19,17 @@ contract DeployRealMarriageRegistry is Script {
             console.log("Using default mock zkPassport verifier address");
         }
 
-        // Setup default jurisdictions and minimum ages
-        string[] memory jurisdictions = new string[](5);
-        uint256[] memory minimumAges = new uint256[](5);
-        
-        jurisdictions[0] = "US";
-        minimumAges[0] = 18;
-        
-        jurisdictions[1] = "CA";
-        minimumAges[1] = 18;
-        
-        jurisdictions[2] = "GB";
-        minimumAges[2] = 18;
-        
-        jurisdictions[3] = "EU";
-        minimumAges[3] = 18;
-        
-        jurisdictions[4] = "default";
-        minimumAges[4] = 18;
-
         vm.startBroadcast(deployerPrivateKey);
 
         // Deploy RealMarriageRegistry
         RealMarriageRegistry marriageRegistry = new RealMarriageRegistry(
-            zkPassportVerifier,
-            jurisdictions,
-            minimumAges
+            zkPassportVerifier
         );
 
         console.log("RealMarriageRegistry deployed to:", address(marriageRegistry));
         console.log("Owner:", marriageRegistry.owner());
         console.log("ZK Passport Verifier:", marriageRegistry.zkPassportVerifier());
-        console.log("Supported jurisdictions:", jurisdictions.length);
-        
-        // Log supported jurisdictions
-        for (uint i = 0; i < jurisdictions.length; i++) {
-            console.log("  -", jurisdictions[i], "- Min age:", minimumAges[i]);
-        }
+        console.log("Minimum age for marriage:", marriageRegistry.getMinimumAge());
 
         vm.stopBroadcast();
     }

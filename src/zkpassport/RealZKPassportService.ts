@@ -48,13 +48,11 @@ export class RealZKPassportService {
         userId: string,
         requirements: {
             minAge?: number;
-            allowedCountries?: string[];
             requireDocumentValidity?: boolean;
         } = {}
     ): Promise<MarriageVerificationRequest> {
         const {
             minAge = 18,
-            allowedCountries = [],
             requireDocumentValidity = true
         } = requirements;
 
@@ -69,18 +67,8 @@ export class RealZKPassportService {
             // Build verification requirements
             let builder = queryBuilder;
 
-            // Age verification - use constraints on age field instead of disclosure
-            if (minAge >= 18) {
-                builder = builder.gte('age', minAge);
-            }
-
-            // Nationality verification
-            if (allowedCountries.length > 0) {
-                builder = builder.disclose('nationality');
-                if (allowedCountries.length > 0) {
-                    builder = builder.in('nationality', allowedCountries as any);
-                }
-            }
+            // Age verification - ensure person is 18 or older
+            builder = builder.gte('age', 18);
 
             // Document type verification (passport)
             builder = builder.disclose('document_type');
@@ -106,9 +94,8 @@ export class RealZKPassportService {
                     'firstname',
                     'lastname',
                     'birthdate',
-                    'document_type',
-                    ...allowedCountries.length > 0 ? ['nationality'] : []
-                ].filter(Boolean)
+                    'document_type'
+                ]
             };
         } catch (error) {
             throw new Error(`Failed to create verification request: ${error}`);
@@ -169,7 +156,6 @@ export class RealZKPassportService {
         proof2: ZKPassportProofResult,
         jurisdiction: {
             minAge?: number;
-            allowedCountries?: string[];
             sameSexAllowed?: boolean;
         } = {}
     ): Promise<{
@@ -177,7 +163,7 @@ export class RealZKPassportService {
         reasons: string[];
     }> {
         const reasons: string[] = [];
-        const { minAge = 18, allowedCountries = [] } = jurisdiction;
+        const { minAge = 18 } = jurisdiction;
 
         // Check if both proofs are valid
         if (!proof1.isValid || !proof2.isValid) {
@@ -185,25 +171,9 @@ export class RealZKPassportService {
             return { canMarry: false, reasons };
         }
 
-        // Check age requirements
-        if (minAge >= 21) {
-            if (!proof1.ageOver21 || !proof2.ageOver21) {
-                reasons.push(`Both parties must be over 21 years old`);
-            }
-        } else if (minAge >= 18) {
-            if (!proof1.ageOver18 || !proof2.ageOver18) {
-                reasons.push(`Both parties must be over 18 years old`);
-            }
-        }
-
-        // Check nationality restrictions
-        if (allowedCountries.length > 0) {
-            if (!proof1.nationality || !allowedCountries.includes(proof1.nationality)) {
-                reasons.push(`First party nationality not allowed in this jurisdiction`);
-            }
-            if (!proof2.nationality || !allowedCountries.includes(proof2.nationality)) {
-                reasons.push(`Second party nationality not allowed in this jurisdiction`);
-            }
+        // Check age requirements - must be 18 or older
+        if (!proof1.ageOver18 || !proof2.ageOver18) {
+            reasons.push(`Both parties must be over 18 years old`);
         }
 
         // Check document validity
@@ -311,15 +281,18 @@ export class RealZKPassportService {
 
     /**
      * Get supported countries by zkPassport
+     * Note: All countries are supported as we don't restrict by nationality
      */
     async getSupportedCountries(): Promise<string[]> {
         try {
-            // This would typically come from the zkPassport SDK
-            // For now, return common supported countries
+            // All countries are supported since we removed nationality restrictions
+            // This would typically come from the zkPassport SDK for all supported passports
             return [
                 'USA', 'CAN', 'GBR', 'DEU', 'FRA', 'ITA', 'ESP', 'NLD', 
                 'AUS', 'NZL', 'JPN', 'KOR', 'SGP', 'CHE', 'AUT', 'BEL',
-                'DNK', 'FIN', 'ISL', 'IRL', 'LUX', 'NOR', 'PRT', 'SWE'
+                'DNK', 'FIN', 'ISL', 'IRL', 'LUX', 'NOR', 'PRT', 'SWE',
+                'BRA', 'ARG', 'MEX', 'IND', 'CHN', 'RUS', 'ZAF', 'EGY'
+                // Add more countries as supported by zkPassport
             ];
         } catch (error) {
             console.error('Failed to get supported countries:', error);

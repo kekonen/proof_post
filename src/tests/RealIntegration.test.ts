@@ -40,7 +40,6 @@ describe('Real zkPassport + Marriage Integration', () => {
             },
             jurisdiction: {
                 minAge: 18,
-                allowedCountries: ['USA', 'CAN', 'GBR'],
                 sameSexAllowed: true
             }
         };
@@ -77,8 +76,7 @@ describe('Real zkPassport + Marriage Integration', () => {
                 proposeeId: 'bob-2024',
                 jurisdiction: 'US',
                 customRequirements: {
-                    minAge: 18,
-                    allowedCountries: ['USA', 'CAN']
+                    minAge: 18
                 }
             };
 

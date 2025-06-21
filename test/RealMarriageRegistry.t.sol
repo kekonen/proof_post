@@ -11,9 +11,6 @@ contract RealMarriageRegistryTest is Test {
     address alice;
     address bob;
     
-    string[] jurisdictions;
-    uint256[] minimumAges;
-    
     event MarriageProposed(
         bytes32 indexed proposalId, 
         bytes32 proposerNullifier, 
@@ -30,7 +27,6 @@ contract RealMarriageRegistryTest is Test {
     
     event DivorceRequested(bytes32 indexed marriageId, bytes32 requesterNullifier);
     event MarriageDissolved(bytes32 indexed marriageId);
-    event JurisdictionAdded(string jurisdiction, uint256 minimumAge);
     event ZKPassportVerifierUpdated(address newVerifier);
 
     function setUp() public {
@@ -39,21 +35,9 @@ contract RealMarriageRegistryTest is Test {
         alice = address(0x1);
         bob = address(0x2);
         
-        // Setup jurisdictions
-        jurisdictions.push("US");
-        minimumAges.push(18);
-        
-        jurisdictions.push("CA");
-        minimumAges.push(19);
-        
-        jurisdictions.push("EU");
-        minimumAges.push(18);
-        
         // Deploy registry
         registry = new RealMarriageRegistry(
-            zkPassportVerifier,
-            jurisdictions,
-            minimumAges
+            zkPassportVerifier
         );
     }
     
@@ -61,15 +45,8 @@ contract RealMarriageRegistryTest is Test {
         assertEq(registry.owner(), owner);
         assertEq(registry.zkPassportVerifier(), zkPassportVerifier);
         
-        // Test jurisdiction setup
-        assertTrue(registry.isJurisdictionSupported("US"));
-        assertTrue(registry.isJurisdictionSupported("CA"));
-        assertTrue(registry.isJurisdictionSupported("EU"));
-        assertFalse(registry.isJurisdictionSupported("UNKNOWN"));
-        
-        assertEq(registry.getMinimumAge("US"), 18);
-        assertEq(registry.getMinimumAge("CA"), 19);
-        assertEq(registry.getMinimumAge("EU"), 18);
+        // Test minimum age (now a constant)
+        assertEq(registry.getMinimumAge(), 18);
     }
     
     function testCreateMarriageProposal() public {
@@ -123,18 +100,28 @@ contract RealMarriageRegistryTest is Test {
         assertFalse(isAccepted);
     }
     
-    function testCreateMarriageProposalFailsWithUnsupportedJurisdiction() public {
+    function testCreateMarriageProposalWithAnyJurisdiction() public {
         bytes32 proposalId = keccak256("proposal1");
         bytes32 proposerNullifier = keccak256("alice_nullifier");
         bytes32 proposeeNullifier = keccak256("bob_nullifier");
         bytes32 proposalHash = keccak256("proposal_hash");
         uint256 expirationTime = block.timestamp + 1 days;
-        string memory jurisdiction = "UNSUPPORTED";
+        string memory jurisdiction = "ANY_JURISDICTION"; // Any jurisdiction should work now
         
-        bytes memory zkProof1 = abi.encodePacked("alice_proof");
-        bytes memory zkProof2 = abi.encodePacked("bob_proof");
+        // Create valid zkPassport proofs that will pass the mock verification
+        bytes32 proofHash1 = keccak256("alice_proof");
+        bytes32 derivedNullifier1 = keccak256(abi.encodePacked(proofHash1, "nullifier"));
+        bytes memory zkProof1 = "alice_proof";
         
-        vm.expectRevert(RealMarriageRegistry.UnsupportedJurisdiction.selector);
+        bytes32 proofHash2 = keccak256("bob_proof");  
+        bytes32 derivedNullifier2 = keccak256(abi.encodePacked(proofHash2, "nullifier"));
+        bytes memory zkProof2 = "bob_proof";
+        
+        // Use derived nullifiers
+        proposerNullifier = derivedNullifier1;
+        proposeeNullifier = derivedNullifier2;
+        
+        // Should succeed with any jurisdiction
         registry.createMarriageProposal(
             proposalId,
             proposerNullifier,
@@ -145,6 +132,10 @@ contract RealMarriageRegistryTest is Test {
             zkProof1,
             zkProof2
         );
+        
+        // Verify proposal was created
+        (bytes32 storedProposerNullifier,,,,,,,) = registry.proposals(proposalId);
+        assertEq(storedProposerNullifier, proposerNullifier);
     }
     
     function testCreateMarriageProposalFailsWithUsedNullifier() public {
@@ -393,14 +384,6 @@ contract RealMarriageRegistryTest is Test {
     }
     
     function testAdminFunctions() public {
-        // Test adding jurisdiction
-        vm.expectEmit(true, true, true, true);
-        emit JurisdictionAdded("AU", 18);
-        registry.addJurisdiction("AU", 18);
-        
-        assertTrue(registry.isJurisdictionSupported("AU"));
-        assertEq(registry.getMinimumAge("AU"), 18);
-        
         // Test updating zkPassport verifier
         address newVerifier = address(0x9999);
         vm.expectEmit(true, true, true, true);
@@ -409,23 +392,13 @@ contract RealMarriageRegistryTest is Test {
         
         assertEq(registry.zkPassportVerifier(), newVerifier);
         
-        // Test removing jurisdiction
-        registry.removeJurisdiction("AU");
-        assertFalse(registry.isJurisdictionSupported("AU"));
-        assertEq(registry.getMinimumAge("AU"), 0);
+        // Test minimum age is constant
+        assertEq(registry.getMinimumAge(), 18);
     }
     
     function testAdminFunctionsOnlyOwner() public {
         vm.prank(alice);
         vm.expectRevert(); // OwnableUnauthorizedAccount
-        registry.addJurisdiction("AU", 18);
-        
-        vm.prank(alice);
-        vm.expectRevert(); // OwnableUnauthorizedAccount
         registry.updateZKPassportVerifier(address(0x9999));
-        
-        vm.prank(alice);
-        vm.expectRevert(); // OwnableUnauthorizedAccount
-        registry.removeJurisdiction("US");
     }
 }

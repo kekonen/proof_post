@@ -39,7 +39,6 @@ describe('RealMarriageService', () => {
             },
             jurisdiction: {
                 minAge: 18,
-                allowedCountries: ['USA', 'CAN'],
                 sameSexAllowed: true
             }
         };
@@ -72,8 +71,7 @@ describe('RealMarriageService', () => {
                 proposeeId: 'user456',
                 jurisdiction: 'US',
                 customRequirements: {
-                    minAge: 21,
-                    allowedCountries: ['USA']
+                    minAge: 21
                 }
             };
 

@@ -15,7 +15,6 @@ export interface RealMarriageConfig {
     };
     jurisdiction: {
         minAge?: number;
-        allowedCountries?: string[];
         sameSexAllowed?: boolean;
     };
 }
@@ -26,7 +25,6 @@ export interface MarriageProposalRequest {
     jurisdiction?: string;
     customRequirements?: {
         minAge?: number;
-        allowedCountries?: string[];
     };
 }
 
@@ -53,7 +51,7 @@ export class RealMarriageService {
         this.provider = config.provider;
         this.contract = new ethers.Contract(config.contractAddress, config.contractAbi, config.signer);
         this.signer = config.signer;
-        this.jurisdiction = config.jurisdiction || { minAge: 18, allowedCountries: [], sameSexAllowed: true };
+        this.jurisdiction = config.jurisdiction || { minAge: 18, sameSexAllowed: true };
         
         this.zkPassport = new RealZKPassportService(config.zkPassportConfig);
     }
