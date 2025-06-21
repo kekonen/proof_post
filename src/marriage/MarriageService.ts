@@ -195,11 +195,11 @@ export class MarriageService {
     async verifyMarriageCertificate(certificate: MarriageCertificate): Promise<boolean> {
         // This would verify the ZK proof using the verifier contract
         // For now, we'll do a basic check
-        return certificate.proof && certificate.publicSignals.length > 0;
+        return !!(certificate.proof && certificate.publicSignals.length > 0);
     }
 
     async verifyNoMarriageProof(proof: NoMarriageProof): Promise<boolean> {
         // This would verify the ZK proof using the verifier contract
-        return proof.proof && proof.publicSignals.length > 0;
+        return !!(proof.proof && proof.publicSignals.length > 0);
     }
 }
