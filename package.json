@@ -1,0 +1,32 @@
+{
+  "name": "zk-marriage-proof",
+  "version": "1.0.0",
+  "description": "Zero-knowledge proof of marriage system built on zkpassport",
+  "main": "src/index.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest",
+    "lint": "eslint src/**/*.ts",
+    "dev": "ts-node src/index.ts"
+  },
+  "dependencies": {
+    "circomlib": "^2.0.5",
+    "snarkjs": "^0.7.3",
+    "ethers": "^6.10.0",
+    "@openzeppelin/contracts": "^5.0.1",
+    "merkletreejs": "^0.3.11"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "typescript": "^5.3.3",
+    "ts-node": "^10.9.2",
+    "jest": "^29.7.0",
+    "@types/jest": "^29.5.11",
+    "eslint": "^8.56.0",
+    "@typescript-eslint/eslint-plugin": "^6.19.1",
+    "@typescript-eslint/parser": "^6.19.1"
+  },
+  "keywords": ["zk-proof", "marriage", "zkpassport", "privacy", "identity"],
+  "author": "",
+  "license": "MIT"
+}
