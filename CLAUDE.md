@@ -22,10 +22,31 @@ This is a zero-knowledge proof of marriage system built on top of zkpassport. It
 
 ## Development Commands
 
+### TypeScript/Backend
 - `npm run build`: Compile TypeScript code
-- `npm test`: Run Jest test suite
+- `npm test`: Run Jest test suite for TypeScript services
 - `npm run lint`: Run ESLint on TypeScript files
 - `npm run dev`: Run development server with ts-node
+
+### Smart Contracts (Foundry)
+- `npm run build:contracts`: Compile Solidity contracts with Forge
+- `npm run test:contracts`: Run Foundry tests
+- `npm run test:contracts:verbose`: Run Foundry tests with verbose output
+- `npm run test:contracts:gas`: Run Foundry tests with gas reporting
+- `npm run lint:contracts`: Check Solidity code formatting
+- `npm run format:contracts`: Format Solidity code
+
+### Deployment
+- `npm run deploy:local`: Deploy to local Anvil network
+- `npm run deploy:sepolia`: Deploy to Sepolia testnet
+- `npm run setup:test`: Setup test environment with sample users
+
+### Additional Foundry Commands
+- `forge build`: Compile contracts
+- `forge test`: Run tests
+- `forge fmt`: Format code
+- `anvil`: Start local blockchain
+- `cast`: Interact with contracts
 
 ## Marriage System Flow
 

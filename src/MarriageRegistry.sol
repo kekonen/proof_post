@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract MarriageRegistry is ReentrancyGuard, Ownable {
@@ -34,7 +34,7 @@ contract MarriageRegistry is ReentrancyGuard, Ownable {
     event DivorceRequested(bytes32 indexed marriageId, bytes32 requester);
     event MarriageDissolved(bytes32 indexed marriageId);
 
-    constructor(bytes32 _zkPassportMerkleRoot) {
+    constructor(bytes32 _zkPassportMerkleRoot) Ownable(msg.sender) {
         zkPassportMerkleRoot = _zkPassportMerkleRoot;
     }
 

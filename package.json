@@ -5,9 +5,18 @@
   "main": "src/index.js",
   "scripts": {
     "build": "tsc",
+    "build:contracts": "forge build",
     "test": "jest",
+    "test:contracts": "forge test",
+    "test:contracts:verbose": "forge test -vvv",
+    "test:contracts:gas": "forge test --gas-report",
     "lint": "eslint src/**/*.ts",
-    "dev": "ts-node src/index.ts"
+    "lint:contracts": "forge fmt --check",
+    "format:contracts": "forge fmt",
+    "dev": "ts-node src/index.ts",
+    "deploy:local": "forge script script/DeployMarriageRegistry.s.sol:DeployMarriageRegistry --rpc-url http://localhost:8545 --broadcast",
+    "deploy:sepolia": "forge script script/DeployMarriageRegistry.s.sol:DeployMarriageRegistry --rpc-url $SEPOLIA_RPC_URL --broadcast --verify",
+    "setup:test": "forge script script/SetupTestEnvironment.s.sol:SetupTestEnvironment --rpc-url http://localhost:8545 --broadcast"
   },
   "dependencies": {
     "circomlib": "^2.0.5",
