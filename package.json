@@ -18,10 +18,13 @@
     "dev": "ts-node src/index.ts",
     "deploy:local": "forge script script/DeployMarriageRegistry.s.sol:DeployMarriageRegistry --rpc-url http://localhost:8545 --broadcast",
     "deploy:sepolia": "forge script script/DeployMarriageRegistry.s.sol:DeployMarriageRegistry --rpc-url $SEPOLIA_RPC_URL --broadcast --verify",
+    "deploy:real:local": "forge script script/DeployRealMarriageRegistry.s.sol:DeployRealMarriageRegistry --rpc-url http://localhost:8545 --broadcast",
+    "deploy:real:sepolia": "forge script script/DeployRealMarriageRegistry.s.sol:DeployRealMarriageRegistry --rpc-url $SEPOLIA_RPC_URL --broadcast --verify",
     "setup:test": "forge script script/SetupTestEnvironment.s.sol:SetupTestEnvironment --rpc-url http://localhost:8545 --broadcast"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^5.0.1",
+    "@zkpassport/sdk": "^0.5.5",
     "circomlib": "^2.0.5",
     "ethers": "^6.10.0",
     "merkletreejs": "^0.3.11",
