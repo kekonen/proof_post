@@ -7,7 +7,7 @@ export * from './types/marriage';
 
 // Example usage
 async function main() {
-    console.log('ZK Marriage Proof System');
+    console.log('Marriaged - ZK Marriage Proof System');
     console.log('Built on top of zkpassport for privacy-preserving marriage verification');
     
     // This would be replaced with actual provider and contract details

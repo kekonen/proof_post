@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a zero-knowledge proof of marriage system built on top of zkpassport. It enables privacy-preserving marriage verification where individuals can prove their marriage status without revealing their identity.
+Marriaged is a zero-knowledge proof of marriage system built on top of zkpassport. It enables privacy-preserving marriage verification where individuals can prove their marriage status without revealing their identity.
 
 ## Core Architecture
 

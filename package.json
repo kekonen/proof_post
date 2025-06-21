@@ -1,7 +1,7 @@
 {
-  "name": "zk-marriage-proof",
+  "name": "marriaged",
   "version": "1.0.0",
-  "description": "Zero-knowledge proof of marriage system built on zkpassport",
+  "description": "Marriaged - Zero-knowledge proof of marriage system built on zkpassport",
   "main": "src/index.js",
   "scripts": {
     "build": "tsc",
@@ -35,7 +35,7 @@
     "@typescript-eslint/eslint-plugin": "^6.19.1",
     "@typescript-eslint/parser": "^6.19.1"
   },
-  "keywords": ["zk-proof", "marriage", "zkpassport", "privacy", "identity"],
+  "keywords": ["marriaged", "zk-proof", "marriage", "zkpassport", "privacy", "identity"],
   "author": "",
   "license": "MIT"
 }
